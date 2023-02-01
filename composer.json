@@ -1,0 +1,37 @@
+{
+  "name": "digilab/split-delivery",
+  "description": "This plugin stores all the items in an order and creates a field to select which products will be in a second delivery, including adding delivery options for the second delivery",
+  "type": "craft-plugin",
+  "version" : "1.0.0",
+  "keywords": ["delivery", "commerce", "split"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dene Hewings",
+      "homepage": "https://digilab.co.uk"
+    }
+  ],
+  "support": {
+    "email": "dene@digilab.co.uk",
+    "issues": "https://github.com/DigilabDene/Split-Delivery/issues?state=open",
+    "source": "https://github.com/DigilabDene/Split-Delivery",
+    "docs": "https://github.com/DigilabDene/Split-Delivery/blob/master/README.md"
+  },
+  "require": {
+    "craftcms/cms": "^3.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "digilab\\split\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "Split Delivery",
+    "handle": "split-delivery",
+    "developer": "Dene Hewings",
+    "developerUrl": "https://digilab.co.uk",
+    "documentationUrl": "https://github.com/DigilabDene/Split-Delivery",
+    "changelogUrl": "https://github.com/DigilabDene/Split-Delivery/blob/master/changelog",
+    "class": "digilab\\split\\Split"
+  }
+}
