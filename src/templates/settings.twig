@@ -1,0 +1,22 @@
+{% import '_includes/forms' as forms %}
+{% set title = 'Split delivery settings' %}
+
+{# The URL to this plugin's base CP section #}
+{% set pluginCpUrl = url('split-delivery') %}
+{% block content %}
+	<h1>{{ 'When a user has a second delivery some fields will need information for that delivery'|t }}.</h1>
+	<h2>{{ 'Select the fields to include'|t }}:</h2>
+	{% set fields = craft.split.getTheOrderFields %}
+	<ul>
+		{% for field in fields|keys %}
+			{% set name = craft.split.getFieldName(field) %}
+			{% set description = craft.split.getFieldDescription(field) %}
+			<li>
+				<b>{{ forms.checkboxField({ name: 'fields[' ~ field ~ ']', label: name, checked: settings.fields[field] }) }}</b>
+				{% if description != '' %}
+				<span style="margin-left:22px;">- {{description}}</span>
+				{% endif %}
+			</li>
+		{% endfor %}
+	</ul>
+{% endblock %}

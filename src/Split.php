@@ -10,7 +10,18 @@
 namespace digilab\split;
 
 use Craft;
+use yii\base\Event;
+use craft\base\Model;
 use craft\base\Plugin;
+use craft\services\Fields;
+use craft\commerce\elements\Order;
+use digilab\split\models\Settings;
+use craft\web\twig\variables\CraftVariable;
+use digilab\split\fields\SplitDeliveryField;
+use craft\events\RegisterComponentTypesEvent;
+use digilab\split\helpers\SplitDeliveryHelper;
+use digilab\split\services\OrderfieldsService;
+use digilab\split\variables\OrderfieldsVariable;
 
 /**
  * Craft plugins are very much like little applications in and of themselves. We’ve made
@@ -57,19 +68,61 @@ class Split extends Plugin
      *
      * @var bool
      */
-    public $hasCpSettings = false;
+    public $hasCpSettings = true;
 
-    /**
-     * Set to `true` if the plugin should have its own section (main nav item) in the control panel.
-     *
-     * @var bool
-     */
-    public $hasCpSection = false;
+    protected function createSettingsModel(): ?Model
+    {
+        return new Settings();
+    }
+
+    protected function settingsHtml()
+    {
+        return Craft::$app->getView()->renderTemplate(
+            'split-delivery/settings',
+            ['settings' => $this->getSettings()]
+        );
+    }
 
     public function init()
     {
         parent::init();
         self::$plugin = $this;
+
+        $this->setComponents([
+            'service' => OrderfieldsService::class,
+        ]);
+
+        Event::on(
+            CraftVariable::class,
+            CraftVariable::EVENT_INIT,
+            function (Event $e) {
+                /** @var CraftVariable $variable */
+                $variable = $e->sender;
+
+                // Attach a service:
+                $variable->set('split', OrderfieldsVariable::class);
+            }
+        );
+
+        Event::on(
+            Fields::class,
+            Fields::EVENT_REGISTER_FIELD_TYPES,
+            function (RegisterComponentTypesEvent $event) {
+                $event->types[] = SplitDeliveryField::class;
+            }
+        );
+
+        Event::on(Order::class, Order::EVENT_BEFORE_SAVE, function (Event $event) {
+            if (Craft::$app->getRequest()->getIsCpRequest()) {
+                if ($event->sender instanceof Order) {
+                    $serialNumberHelper = new SplitDeliveryHelper();
+                    $params = Craft::$app->request->getBodyParams();
+                    $serialNumberHelper->updateDelivery($params);
+                }
+            }
+        });
+
+
 
         /**
          * Logging in Craft involves using one of the following methods:

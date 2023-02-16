@@ -1,0 +1,61 @@
+{% css %}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+.field {
+	width: 49%;
+	display: inline-block;
+}
+{% endcss %}
+{% set lineItems = order.lineItems %}
+{# TODO new variable to fetch items in record #}
+{% set serialNumbers = craft.serial.serialNumbers(order.id) %}
+{% set extraDeliveryOptions = craft.split.settings %}
+{% block content %}
+{% if order %}
+<div style="display:flex;">
+	<input type="hidden" name="orderId" id="orderId" value="{{order.id}}">
+		<div>
+			<table>
+				<thead>
+					<tr>
+						<th>
+							{{"Include"|t}}?
+						</th>
+						<th>
+							{{"Product name"|t}}
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for lineItem in lineItems %}
+						{% set qty = lineItem.qty %}
+						{% set productId = lineItem.snapshot.productId %}
+						{% set product = craft.products.id(productId).one() %}
+							<tr>
+								<td style="border-right:1px solid #eee;"><input type="checkbox" name="productId[" ~ productId ~ "]" id="productId"></td>
+								<td>{{product.title ?? ''}}</td>
+							</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</form>
+</div>
+<div style="display:block;">
+	{% for label, on in extraDeliveryOptions if on == 1 %}
+		<div class="field">
+			<ul>
+				{# {% set fieldHtml = craft.split.getFieldHtml(label) %} #}
+				{# <li>{% dd fieldHtml %}</li> #}
+				<li><input class="text fullwidth" type="text" name="fieldData[" ~ label ~ "][]" id=""></li>
+			</ul>
+		</div>
+	{% endfor %}
+</div>
+
+
+
+
+{% else %}
+<h2>Order with id {{ orderId }} not found</h2>
+{% endif %}
+{% endblock %}
